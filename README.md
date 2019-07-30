@@ -1,7 +1,7 @@
 # kobackupdec
 Huawei backup decryptor
 
-_This script is introduced by the blog post at TODO._
+_This script is introduced by the blog post at https://blog.digital-forensics.it/2019/07/huawei-backup-decryptor.html._
 
 The `kobackupdec` script is a Python3 script aimed to decrypt Huawei *HiSuite* or *KoBackup* (the Android app) backups. When decrypting and uncompressing the archives, it will re-organize the output folders structure trying to _mimic_ the typical Android one. The script will work both on Windows and Linux hosts, provided the PyCryptoDome dependency.
 
