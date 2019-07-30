@@ -3,11 +3,11 @@ Huawei backup decryptor
 
 _This script is introduced by the blog post at https://blog.digital-forensics.it/2019/07/huawei-backup-decryptor.html._
 
-The `kobackupdec` script is a Python3 script aimed to decrypt Huawei *HiSuite* or *KoBackup* (the Android app) backups. When decrypting and uncompressing the archives, it will re-organize the output folders structure trying to _mimic_ the typical Android one. The script will work both on Windows and Linux hosts, provided the PyCryptoDome dependency.
+The `kobackupdec` is a Python3 script aimed to decrypt Huawei *HiSuite* or *KoBackup* (the Android app) backups. When decrypting and uncompressing the archives, it will re-organize the output folders structure trying to _mimic_ the typical Android one. The script will work both on Windows and Linux hosts, provided the PyCryptoDome dependency.
 
 ## Usage
 
-The script *assumes* that backups are encrypted with a user-provided password. It actually does not support the HiSuite _self_ generated password, when the user does not provide its own.
+The script *assumes* that backups are encrypted with a user-provided password. Actually it does not support the HiSuite _self_ generated password, when the user does not provide its own.
 
 ```
 usage: kobackupdec.py [-h] [-v] password backup_path dest_path
@@ -54,7 +54,7 @@ DEBUG:root:SHA256(BKEY)[16] = b'8d969eef6ecad3c29a3a629280e686cf'
 ...
 ```
 
-The **output** folder structure will be similar to the following one: *data/data* applications will be exploded in their proper paths, and the APKs will be *restored* too (not icons, actually). Note that the **db** folder will contains the *special* databases as created by the Huawei backups.
+The **output** folder structure will be similar to the following one: *data/data* applications will be exploded in their proper paths, and the APKs will be *restored* too (not icons, actually). Note that the **db** folder will contain the *special* databases as created by the Huawei backups.
 
 ```
 HiSuiteBackup
