@@ -459,7 +459,7 @@ def main(password, backup_path_in, dest_path_out):
     for entry in apk_files:
         logging.info('working on %s', entry.name)
         dest_file = data_apk_dir.joinpath(entry.name + '-1')
-        dest_file.mkdir()
+        dest_file.mkdir(exist_ok=True)
         dest_file = dest_file.joinpath('base.apk')
         dest_file.write_bytes(entry.read_bytes())
         done_list.append(entry)
