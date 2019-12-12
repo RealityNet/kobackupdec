@@ -541,7 +541,7 @@ def main(password, backup_path_in, dest_path_out):
     for entry in done_list:
         enc_files.remove(entry)
 
-    logging.info('copying unmanged files to destination...')
+    logging.info('copying unmanaged files to destination...')
     data_unk_dir = dest_path_out.absolute().joinpath('misc')
     data_unk_dir.mkdir(parents=True)
 
@@ -575,7 +575,7 @@ def main(password, backup_path_in, dest_path_out):
     for entry in enc_files:
         logging.warning('ENC file not handled: %s', entry.name)
 
-    for entry in enc_files:
+    for entry in unk_files:
         logging.warning('UNK file not handled: %s', entry.name)
 
 # --- entry point and parameters checks ---------------------------------------
