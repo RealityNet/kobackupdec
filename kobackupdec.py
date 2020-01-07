@@ -4,6 +4,7 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
+# - 20191113: fixed double folder creation error
 # - 20190729: first public release
 #
 # Released under MIT License
