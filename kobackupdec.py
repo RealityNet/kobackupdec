@@ -4,6 +4,7 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
+# - 20200107: merged pull by @lp4n6, fixed current version
 # - 20191113: fixed double folder creation error
 # - 20190729: first public release
 #
@@ -48,7 +49,7 @@ from Crypto.Hash import HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
-VERSION = '20190729'
+VERSION = '20200107'
 
 # Disabling check on doc strings and naming convention.
 # pylint: disable=C0111,C0103
