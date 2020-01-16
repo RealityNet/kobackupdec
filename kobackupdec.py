@@ -654,7 +654,7 @@ def decrypt_files_in_root(decrypt_info, path_in, path_out):
 
     data_apk_dir = path_out.absolute().joinpath('data/app')
     data_app_dir = path_out.absolute().joinpath('data/data')
-    #data_app_dir.mkdir(parents=True, exist_ok=True)
+    #data_app_dir.mkdir(0o755, parents=True, exist_ok=True)
     data_unk_dir = path_out.absolute().joinpath('unknown')
 
     for entry in path_in.glob('*'):
@@ -670,7 +670,7 @@ def decrypt_files_in_root(decrypt_info, path_in, path_out):
 
         if extension == '.apk':
             dest_file = data_apk_dir.joinpath(entry.name + '-1')
-            dest_file.mkdir(parents=True, exist_ok=True)
+            dest_file.mkdir(0o755, parents=True, exist_ok=True)
             dest_file = dest_file.joinpath('base.apk')
             dest_file.write_bytes(entry.read_bytes())
 
@@ -680,7 +680,7 @@ def decrypt_files_in_root(decrypt_info, path_in, path_out):
                                       search=True)
             if cleartext:
                 dest_file = data_app_dir.joinpath(entry.name)
-                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
                 dest_file.write_bytes(cleartext)
             else:
                 logging.warning('unable to decrypt entry %s', entry.name)
@@ -700,7 +700,7 @@ def decrypt_files_in_root(decrypt_info, path_in, path_out):
         else:
             logging.warning('entry %s unmanged, copying it', entry.name)
             dest_file = data_unk_dir.joinpath(entry.name)
-            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
             dest_file.write_bytes(entry.read_bytes())
 
 # --- decrypt_files_in_folder -------------------------------------------------
@@ -732,7 +732,7 @@ def decrypt_files_in_folder(decrypt_info, folder, path_out):
             if cleartext and decrypt_material:
                 tmp_path = decrypt_material.path.lstrip('/').lstrip('\\')
                 dest_file = path_out.joinpath(tmp_path)
-                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
                 dest_file.write_bytes(cleartext)
                 continue
 
@@ -749,7 +749,7 @@ def decrypt_files_in_folder(decrypt_info, folder, path_out):
                 decrypt_material, entry.read_bytes())
             if cleartext:
                 dest_file = media_out_dir.joinpath(entry.relative_to(folder))
-                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
                 dest_file.write_bytes(cleartext)
                 continue
 
@@ -761,7 +761,7 @@ def decrypt_files_in_folder(decrypt_info, folder, path_out):
                 decrypt_material, entry.read_bytes())
             if cleartext:
                 dest_file = media_out_dir.joinpath(entry.relative_to(folder))
-                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
                 if entry.suffix.lower() == '.tar':
                     with tarfile.open(fileobj=io.BytesIO(cleartext)) as tdata:
                         if os.name == 'nt':
@@ -772,14 +772,14 @@ def decrypt_files_in_folder(decrypt_info, folder, path_out):
                 if dest_file.exists():
                     new_name = str(folder.name) + '_' + str(dest_file.name)
                     dest_file = dest_file.parent.joinpath(new_name)
-                    dest_file.parent.mkdir(parents=True, exist_ok=True)
+                    dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
                 dest_file.write_bytes(cleartext)
                 continue
 
         if cleartext is None:
             logging.warning('decrypting [%s] failed, copying it', entry.name)
             dest_file = media_unk_dir.joinpath(entry.name)
-            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            dest_file.parent.mkdir(0o755, parents=True, exist_ok=True)
             dest_file.write_bytes(entry.read_bytes())
 
 
@@ -873,7 +873,14 @@ def main(password, backup_path_in, dest_path_out):
 
     logging.info('setting all decrypted files to read-only')
     for entry in dest_path_out.glob('**/*'):
-        os.chmod(entry, 0o444)
+        # Set read-only permission if entry is a file.
+        if os.path.isfile(entry):
+            os.chmod(entry, 0o444)
+
+        # *nix directories require execute permission to read/traverse
+        elif os.path.isdir(entry):
+            os.chmod(entry, 0o555)
+
 
 # --- entry point and parameters checks ---------------------------------------
 
@@ -912,6 +919,8 @@ if __name__ == '__main__':
     dest_path = pathlib.Path(args.dest_path)
     if dest_path.is_dir():
         sys.exit('Destination folder already exists!')
-    dest_path.mkdir(parents=True)
+    
+    # Make directory with read and execute permission (=read and traverse)
+    dest_path.mkdir(0o755,parents=True)
 
     main(user_password, backup_path, dest_path)
