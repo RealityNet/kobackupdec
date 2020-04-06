@@ -4,11 +4,14 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
+# - 20200406: added Python minor version check and note (thanks @lp4n6)
 # - 2020test: rewritten to handle v9 and v10 backups
 # - 20200107: merged pull by @lp4n6, fixed current version
 # - 20191113: fixed double folder creation error
 # - 20190729: first public release
 # - 20190729: first public release
+#
+# Note: it needs Python version >= 3.7
 #
 # Released under MIT License
 #
@@ -881,6 +884,8 @@ if __name__ == '__main__':
 
     if sys.version_info[0] < 3:
         sys.exit('Python 3 or a more recent version is required.')
+    elif sys.version_info[1] < 7:
+        sys.exit('Python 3.7 or a more recent version is required.')
 
     description = 'Huawei KoBackup decryptor version {}'.format(VERSION)
     parser = argparse.ArgumentParser(description=description)
