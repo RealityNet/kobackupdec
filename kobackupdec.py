@@ -4,7 +4,7 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
-# - 20200406: added Python minor version check and note (thanks @lp4n6)
+# - 20200405: added Python minor version check and note (thanks @lp4n6)
 # - 2020test: rewritten to handle v9 and v10 backups
 # - 20200107: merged pull by @lp4n6, fixed current version
 # - 20191113: fixed double folder creation error
@@ -55,7 +55,7 @@ from Crypto.Hash import HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
-VERSION = '2020test'
+VERSION = '20200405'
 
 # Disabling check on doc strings and naming convention.
 # pylint: disable=C0111,C0103
