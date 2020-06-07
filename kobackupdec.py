@@ -4,6 +4,7 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
+# - 20200607: merged empty CheckMsg, update folder_to_media_type by @realSnoopy
 # - 20200406: merged pull by @lp4n6, related to files and folders permissions
 # - 20200405: added Python minor version check and note (thanks @lp4n6)
 # - 2020test: rewritten to handle v9 and v10 backups
@@ -56,7 +57,7 @@ from Crypto.Hash import HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
-VERSION = '20200406'
+VERSION = '20200607'
 
 # Disabling check on doc strings and naming convention.
 # pylint: disable=C0111,C0103
@@ -267,20 +268,25 @@ class Decryptor:
                       binascii.hexlify(self._bkey_sha256))
 
         salt = self._checkMsg[32:]
-        logging.debug('SALT[%s] = %s', len(salt), binascii.hexlify(salt))
+        if salt:
+            logging.debug('SALT[%s] = %s', len(salt), binascii.hexlify(salt))
 
-        res = PBKDF2(self._bkey, salt, Decryptor.dklen, Decryptor.count,
-                     Decryptor.prf, hmac_hash_module=None)
-        logging.debug('KEY check expected = %s',
-                      binascii.hexlify(self._checkMsg[:32]))
-        logging.debug('RESULT = %s', binascii.hexlify(res))
+            res = PBKDF2(self._bkey, salt, Decryptor.dklen, Decryptor.count,
+                         Decryptor.prf, hmac_hash_module=None)
+            logging.debug('KEY check expected = %s',
+                          binascii.hexlify(self._checkMsg[:32]))
+            logging.debug('RESULT = %s', binascii.hexlify(res))
 
-        if res == self._checkMsg[:32]:
-            logging.info('OK, backup key is correct!')
-            self._good = True
+            if res == self._checkMsg[:32]:
+                logging.info('OK, backup key is correct!')
+                self._good = True
+            else:
+                logging.error('KO, backup key is wrong!')
+                self._good = False
         else:
-            logging.error('KO, backup key is wrong!')
-            self._good = False
+            logging.warning('Empty CheckMsg! Cannot check backup password!')
+            logging.warning('Assuming the provided password is correct...')
+            self._good = True
 
     def decrypt_package(self, dec_material, data):
         if not self._good:
@@ -711,7 +717,8 @@ def decrypt_files_in_root(decrypt_info, path_in, path_out):
 
 def decrypt_files_in_folder(decrypt_info, folder, path_out):
 
-    folder_to_media_type = {'movies': 'video', 'pictures': 'photo'}
+    folder_to_media_type = {'movies': 'video', 'pictures': 'photo',
+                            'audios': 'audio', }
 
     media_out_dir = path_out.absolute().joinpath('storage')
     media_unk_dir = path_out.absolute().joinpath('unknown')
