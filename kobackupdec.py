@@ -273,8 +273,10 @@ class Decryptor:
         logging.debug('SHA256(BKEY)[%s] = %s', len(self._bkey_sha256),
                       binascii.hexlify(self._bkey_sha256))
 
-        salt = self._checkMsg[32:]
-        if salt:
+        # [TBR][TODO] This check should be refactored.
+        if self._checkMsg:
+            salt = self._checkMsg[32:]
+
             logging.debug('SALT[%s] = %s', len(salt), binascii.hexlify(salt))
 
             res = PBKDF2(self._bkey, salt, Decryptor.dklen, Decryptor.count,
