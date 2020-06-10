@@ -12,7 +12,7 @@ The script *assumes* that backups are encrypted with a user-provided password. A
 ```
 usage: kobackupdec.py [-h] [-v] password backup_path dest_path
 
-Huawei KoBackup decryptor version 20190729
+Huawei KoBackup decryptor version 20200611
 
 positional arguments:
   password       user password for the backup
@@ -20,8 +20,10 @@ positional arguments:
   dest_path      decrypted backup folder
 
 optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  verbose level, -v to -vvv
+  -h, --help       show this help message and exit
+  -e, --expandtar  expand tar files
+  -w, --writable   do not set RO pemission on decrypted data
+  -v, --verbose    verbose level, -v to -vvv
 ```
 
 - `password`, is the user provided password.
