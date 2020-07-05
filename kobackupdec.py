@@ -4,6 +4,7 @@
 # Huawei KoBackup backups decryptor.
 #
 # Version History
+# - 20200705: fixed decrypt_large_package to read input's chunks
 # - 20200611: added 'expandtar' option, to avoid automatic expansion of TARs
 #             added 'writable' option, to allow user RW on decrypted files
 #             large TAR files are not managed in chunk but not expanded
@@ -60,7 +61,7 @@ from Crypto.Hash import HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
-VERSION = '20200611'
+VERSION = '20200705'
 
 # Disabling check on doc strings and naming convention.
 # pylint: disable=C0111,C0103
@@ -316,7 +317,7 @@ class Decryptor:
         decryptor = AES.new(key, mode=AES.MODE_CTR, counter=counter_obj)
         return decryptor.decrypt(data)
 
-    def decrypt_large_package(self, dec_material, data):
+    def decrypt_large_package(self, dec_material, entry):
         if not self._good:
             logging.warning('well, it is hard to decrypt with a wrong key.')
 
@@ -334,9 +335,12 @@ class Decryptor:
             counter_iv, byteorder='big'), little_endian=False)
 
         decryptor = AES.new(key, mode=AES.MODE_CTR, counter=counter_obj)
-        data_view = memoryview(data)
-        for x in range(0, len(data), self.chunk_size):
-            yield decryptor.decrypt(data_view[x:x+self.chunk_size])
+        data_len = entry.stat().st_size
+        with open(entry, 'rb') as entry_fd:
+            for x in range(0, data_len, self.chunk_size):
+                logging.debug('decrypting chunk %d of %s', x, entry)
+                data = entry_fd.read(self.chunk_size)
+                yield decryptor.decrypt(data)
 
     def decrypt_file(self, dec_material, data):
         if not self._good:
@@ -696,7 +700,7 @@ def decrypt_large_entry(decrypt_info, entry, type_info, search=False):
                                                          search)
     if decrypt_material:
         for x in decrypt_info.decryptor.decrypt_large_package(
-            decrypt_material, entry.read_bytes()):
+                decrypt_material, entry):
             yield x
     else:
         logging.warning('entry %s has no decrypt material!', skey)
