@@ -877,7 +877,7 @@ def decrypt_backup(password, path_in, path_out, expandtar):
 
     xml_files = path_in.glob('*.xml')
     for entry in xml_files:
-        if entry.name != 'info.xml':
+        if entry.name != 'info.xml' and not entry.name.startswith('._'):
             parse_generic_xml(entry, decrypt_info)
 
     logging.debug(decrypt_info.dump())
